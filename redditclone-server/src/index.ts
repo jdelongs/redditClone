@@ -1,0 +1,74 @@
+import 'reflect-metadata';
+import { __prod__ } from './constants';
+import { MikroORM } from "@mikro-orm/core"
+import microConfig from './mikro-orm.config';
+import express from 'express';
+import { ApolloServer } from 'apollo-server-express';
+import { buildSchema } from 'type-graphql';
+import { HelloResolver } from './resolvers/hello';
+import { PostResolver } from './resolvers/post';
+import { UserResolver } from './resolvers/user';
+import redis from 'redis';
+import session from 'express-session';
+import connectRedis from 'connect-redis';
+
+
+const main = async () => {
+
+    //MikroORM
+    const orm = await MikroORM.init(microConfig);
+    await orm.getMigrator().up();
+
+    //express
+    const app = express();
+
+    app.get('/', function (_, res) {
+        res.send("Hello world");
+    });
+
+    //REDIS
+    const RedisStore = connectRedis(session);
+    const redisClient = redis.createClient();
+    redisClient.on("error", function (error) {
+        console.error("Redis Error: ", error)
+    });
+    app.use(
+        session({
+            name: "qid",
+            store: new RedisStore({
+                client: redisClient,
+                disableTouch: true,
+            }),
+            cookie: {
+                maxAge: 1000 * 60 * 60 * 24 * 365 * 10,
+                httpOnly: true,
+                sameSite: 'lax', // csrf
+                secure: __prod__ //cookie only works in https
+            },
+            saveUninitialized: false,
+            secret: "dsadfsadfasdfs",
+            resave: false
+        })
+    )
+
+    //Apollo graphql Setup
+    const apolloServer = new ApolloServer({
+        schema: await buildSchema({
+            resolvers: [HelloResolver, PostResolver, UserResolver],
+            validate: false
+        }),
+        context: ({ req, res }) => ({ em: orm.em, req, res }),
+    });
+
+    apolloServer.applyMiddleware({ app });
+
+    app.listen(3001, () => {
+        console.log('server has started on port 3001');
+    })
+}
+
+main().catch(err => {
+    console.error(err);
+});
+
+
