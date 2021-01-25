@@ -11,6 +11,7 @@ import { UserResolver } from './resolvers/user';
 import redis from 'redis';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
+import cors from 'cors';
 
 
 const main = async () => {
@@ -32,6 +33,10 @@ const main = async () => {
     redisClient.on("error", function (error) {
         console.error("Redis Error: ", error)
     });
+    app.use(cors({
+        origin: 'http://localhost:3000', 
+        credentials: true
+    })); 
     app.use(
         session({
             name: "qid",
@@ -60,7 +65,7 @@ const main = async () => {
         context: ({ req, res }) => ({ em: orm.em, req, res }),
     });
 
-    apolloServer.applyMiddleware({ app });
+    apolloServer.applyMiddleware({ app, cors: false });
 
     app.listen(3001, () => {
         console.log('server has started on port 3001');

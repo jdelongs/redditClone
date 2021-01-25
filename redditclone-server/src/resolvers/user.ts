@@ -52,7 +52,7 @@ export class UserResolver {
             return {
                 errors: [{
                     field: 'username',
-                    message: 'username cannot be empty or less than 2 charachers long'
+                    message: 'username cannot be empty or less than 2 characters long'
                 }]
             };
         }
@@ -60,8 +60,8 @@ export class UserResolver {
         if (options.password.length <= 3) {
             return {
                 errors: [{
-                    field: 'username',
-                    message: 'password cannot be empty or less than 3 charachers long'
+                    field: 'password',
+                    message: 'password cannot be empty or less than 3 characters long'
                 }]
             };
         }
@@ -101,7 +101,7 @@ export class UserResolver {
             return {
                 errors: [{
                     field: 'username',
-                    message: "username does not exist"
+                    message: "username already not exist"
                 }]
             }
         }
