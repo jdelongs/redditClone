@@ -1,6 +1,11 @@
+import React from "react"
+import { Navbar } from "../components/NavBar"
 
 const Index = () => (
-  <div>hellooo world</div>
+  <>
+    <Navbar />
+    <div>hellooo world</div>
+  </>
 )
 
 export default Index
