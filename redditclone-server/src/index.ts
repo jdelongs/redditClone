@@ -15,7 +15,7 @@ import cors from 'cors';
 
 
 const main = async () => {
-
+    //Test Email
     //MikroORM
     const orm = await MikroORM.init(microConfig);
     await orm.getMigrator().up();

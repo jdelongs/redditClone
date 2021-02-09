@@ -41,7 +41,7 @@ export class PostResolver {
     ): Promise<Post | null> {
         const post = await em.findOne(Post, { id });
         if (!post) {
-            return null
+            return null; 
         }
         if (typeof title != 'undefined') {
             post.title = title;
@@ -58,6 +58,7 @@ export class PostResolver {
         @Ctx() { em }: MyContext
     ): Promise<boolean> {
         await em.nativeDelete(Post, { id });
-        return true
+        return true; 
     }
 }
+
