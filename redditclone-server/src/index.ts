@@ -16,6 +16,7 @@ import { User } from './entities/User';
 
 const main = async () => {
     //TYPEORM
+    //@ts-ignore
     const connectTypeorm = await createConnection({
         type: 'postgres', 
         database: 'redditClone2', 
@@ -24,7 +25,7 @@ const main = async () => {
         logging: true, 
         synchronize: true, 
         entities: [Post, User]
-    })
+    });  
 
     //express
     const app = express();
@@ -67,7 +68,7 @@ const main = async () => {
             resolvers: [HelloResolver, PostResolver, UserResolver],
             validate: false
         }),
-        context: ({ req, res }) => ({req, res, redis: redis }),
+        context: ({ req, res }) => ({req, res, redis}),
     });
 
     apolloServer.applyMiddleware({ app, cors: false });

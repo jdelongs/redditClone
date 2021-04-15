@@ -89,6 +89,8 @@ export class UserResolver {
         return { user };
     }
     
+
+    //Forgot Password
     @Mutation(() => Boolean)
     async forgotPassword(
         @Arg('email') email: string, 
@@ -120,6 +122,7 @@ export class UserResolver {
         return true; 
     }
 
+    // get current user
     @Query(() => User, { nullable: true })
     me(@Ctx() { req }: MyContext) {
         if (!req.session.userId) {
@@ -173,45 +176,43 @@ export class UserResolver {
     // User Login
     @Mutation(() => UserResponse)
     async login(
-        @Arg('usernameOrEmail') userNameOrEmail: string,
-        @Arg('password') password: string,
+        @Arg("usernameOrEmail") usernameOrEmail: string,
+        @Arg("password") password: string,
         @Ctx() { req }: MyContext
-    ): Promise<UserResponse> {
-
-        //username validations
+      ): Promise<UserResponse> {
         const user = await User.findOne(
-            userNameOrEmail.includes('@') ? 
-            {where:{email: userNameOrEmail}} : 
-            {where: {username: userNameOrEmail}});
+          usernameOrEmail.includes("@")
+            ? { where: { email: usernameOrEmail } }
+            : { where: { username: usernameOrEmail } }
+        );
         if (!user) {
-            return {
-                errors: [{
-                    field: 'usernameOrEmail',
-                    message: "username does not exist"
-                }]
-            }
+          return {
+            errors: [
+              {
+                field: "usernameOrEmail",
+                message: "that username doesn't exist",
+              },
+            ],
+          };
         }
-
-        // password validation
         const valid = await argon2.verify(user.password, password);
         if (!valid) {
-            return {
-                errors: [
-                    {
-                        field: "password",
-                        message: "username or password is incorrect"
-                    }
-                ]
-            }
+          return {
+            errors: [
+              {
+                field: "password",
+                message: "incorrect password",
+              },
+            ],
+          };
         }
-
-        //logins the user
+    
         req.session.userId = user.id;
-
+    
         return {
-            user,
+          user,
         };
-    }
+      }
 
     @Mutation(() => Boolean)
     logout(@Ctx() { req, res }: MyContext) {
