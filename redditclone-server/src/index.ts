@@ -13,10 +13,9 @@ import cors from 'cors';
 import {createConnection} from 'typeorm'; 
 import { Post } from './entities/Post';
 import { User } from './entities/User';
-
+import path from "path"; 
 const main = async () => {
     //TYPEORM
-    //@ts-ignore
     const connectTypeorm = await createConnection({
         type: 'postgres', 
         database: 'redditClone2', 
@@ -24,9 +23,10 @@ const main = async () => {
         password: '1234', 
         logging: true, 
         synchronize: true, 
+        migrations: [path.join(__dirname, './migrations/*')],
         entities: [Post, User]
     });  
-
+    await connectTypeorm.runMigrations(); 
     //express
     const app = express();
 
